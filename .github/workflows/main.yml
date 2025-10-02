@@ -1,0 +1,44 @@
+# This workflow demonstrates how to use actions/cache to speed up dependency installation.
+
+name: CI with Cache
+
+# Triggers the workflow on pushes to the main branch
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Optional: Setting up Python as seen in your screenshot
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      # Step 1: Cache retrieval/saving
+      # We give it an ID ('cache_dependencies') so we can check its output.
+      - name: Cache Python Dependencies
+        id: cache_dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          # Required key to prime the cache
+          key: cache-716fc84
+          
+      # REQUIRED STEP (Step 2): Echoes the cache hit or miss status.
+      # This uses the output from the previous step ID ('cache_dependencies').
+      - name: prime-cache-716fc84
+        run: |
+          if [ "${{ steps.cache_dependencies.outputs.cache-hit }}" = "true" ]; then
+            echo "Cache Status: HIT for key cache-716fc84"
+          else
+            echo "Cache Status: MISS for key cache-716fc84 (A new cache entry will be saved.)"
+          fi
+          
+      - name: Install dependencies (Simulated)
+        run: echo "Dependencies installed/restored."
+        
+      - name: Completion confirmation
+        run: echo "Cache check workflow finished."
